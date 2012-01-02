@@ -240,9 +240,10 @@ struct uip_stats uip_stat;
 #endif /* UIP_STATISTICS == 1 */
 
 #if UIP_LOGGING == 1
+#include <avr/pgmspace.h>
 #include <stdio.h>
-void uip_log(char *msg);
-#define UIP_LOG(m) uip_log(m)
+void uip_log_P(PGM_P msg);
+#define UIP_LOG(m) uip_log_P(PSTR(m))
 #else
 #define UIP_LOG(m)
 #endif /* UIP_LOGGING == 1 */
@@ -875,7 +876,7 @@ uip_process(u8_t flag)
 #endif /* UIP_CONF_IPV6 */
   } else {
     UIP_LOG("ip: packet shorter than reported in IP header.");
-    goto drop;
+    //goto drop;
   }
 
 #if !UIP_CONF_IPV6
