@@ -876,7 +876,7 @@ uip_process(u8_t flag)
 #endif /* UIP_CONF_IPV6 */
   } else {
     UIP_LOG("ip: packet shorter than reported in IP header.");
-    //goto drop;
+    goto drop;
   }
 
 #if !UIP_CONF_IPV6

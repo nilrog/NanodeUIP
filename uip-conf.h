@@ -70,14 +70,14 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_MAX_CONNECTIONS 3
+#define UIP_CONF_MAX_CONNECTIONS 2
 
 /**
  * Maximum number of listening TCP ports.
  *
  * \hideinitializer
  */
-#define UIP_CONF_MAX_LISTENPORTS 3
+#define UIP_CONF_MAX_LISTENPORTS 2
 
 /**
  * uIP buffer size.
@@ -137,7 +137,7 @@ typedef unsigned short uip_stats_t;
 /*#include "webclient.h"*/
 /* XXX must figure out a better way of doing this! */
 
-#define TCP_APP_STATE_SIZE 150
+#define TCP_APP_STATE_SIZE 100
 
 typedef void tcp_appcall_fn(void);
 typedef void udp_appcall_fn(void);
