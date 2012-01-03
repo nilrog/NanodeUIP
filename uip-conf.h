@@ -84,7 +84,7 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_BUFFER_SIZE    600 
+#define UIP_CONF_BUFFER_SIZE    590 
 
 /**
  * CPU byte order.
@@ -137,7 +137,7 @@ typedef unsigned short uip_stats_t;
 /*#include "webclient.h"*/
 /* XXX must figure out a better way of doing this! */
 
-#define TCP_APP_STATE_SIZE 100
+#define TCP_APP_STATE_SIZE 220
 
 typedef void tcp_appcall_fn(void);
 typedef void udp_appcall_fn(void);
