@@ -47,7 +47,7 @@ struct ptentry {
 
 /*---------------------------------------------------------------------------*/
 void
-parse(const register char *str, struct ptentry *t)
+parse(const register char *str,const struct ptentry *t)
 {
   // RAM space to copy an entry down from progmem
   struct ptentry entry;
@@ -114,7 +114,7 @@ const char exit_str_p[] PROGMEM = "exit";
 const char q_str_p[] PROGMEM = "?";
 const char mem_str_p[] PROGMEM = "mem";
 
-static struct ptentry parsetab[] PROGMEM =
+static const struct ptentry parsetab[] PROGMEM =
   {{stats_str_p, help},
    {conn_str_p, help},
    {help_str_p, help},
