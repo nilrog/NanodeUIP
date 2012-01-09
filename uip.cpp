@@ -243,6 +243,8 @@ struct uip_stats uip_stat;
 #include <avr/pgmspace.h>
 #include <stdio.h>
 void uip_log_P(PGM_P msg);
+#undef PSTR
+#define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 #define UIP_LOG(m) uip_log_P(PSTR(m))
 #else
 #define UIP_LOG(m)
@@ -863,7 +865,7 @@ uip_process(u8_t flag)
      the packet has been padded and we set uip_len to the correct
      value.. */
 
-  if((BUF->len[0] << 8) + BUF->len[1] <= uip_len) {
+  if(((unsigned)BUF->len[0] << 8) + BUF->len[1] <= uip_len) {
     uip_len = (BUF->len[0] << 8) + BUF->len[1];
 #if UIP_CONF_IPV6
     uip_len += 40; /* The length reported in the IPv6 header is the

@@ -58,7 +58,7 @@ memb_init(struct memb_blocks *m)
 void *
 memb_alloc(struct memb_blocks *m)
 {
-  int i;
+  unsigned i;
 
   for(i = 0; i < m->num; ++i) {
     if(m->count[i] == 0) {
@@ -78,7 +78,7 @@ memb_alloc(struct memb_blocks *m)
 char
 memb_free(struct memb_blocks *m, void *ptr)
 {
-  int i;
+  unsigned i;
   char *ptr2;
 
   /* Walk through the list of blocks and try to find the block to

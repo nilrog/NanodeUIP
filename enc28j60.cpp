@@ -408,7 +408,7 @@ uint16_t enc28j60PacketReceive(uint16_t maxlen, uint8_t* packet)
 	//enc28j60Write(ERXRDPTL, (gNextPacketPtr &0xFF));
 	//enc28j60Write(ERXRDPTH, (gNextPacketPtr)>>8);
         // However, compensate for the errata point 13, rev B4: enver write an even address!
-        if ((gNextPacketPtr - 1 < RXSTART_INIT)
+        if (((int)gNextPacketPtr - 1 < RXSTART_INIT)
                 || (gNextPacketPtr -1 > RXSTOP_INIT)) {
                 enc28j60WriteWord(ERXRDPTL, RXSTOP_INIT);
                 //enc28j60Write(ERXRDPTL, (RXSTOP_INIT)&0xFF);

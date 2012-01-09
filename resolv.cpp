@@ -351,7 +351,7 @@ resolv_query(char *name)
 {
   static u8_t i;
   static u8_t lseq, lseqi;
-  register struct namemap *nameptr;
+  register struct namemap *nameptr = 0;
       
   lseq = lseqi = 0;
   

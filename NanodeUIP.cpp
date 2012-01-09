@@ -10,6 +10,8 @@
 #include "dhcpc.h"
 #include "resolv.h"
 
+#undef PSTR
+#define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 
 void nanode_log(char *msg) {
   Serial.println(msg);
