@@ -125,7 +125,7 @@ init_connection(void)
   s.state = WEBCLIENT_STATE_STATUSLINE;
 
   s.getrequestleft = sizeof(http_get) - 1 + 1 +
-    sizeof(http_10) - 1 +
+    sizeof(http_11) - 1 +
     sizeof(http_crnl) - 1 +
     sizeof(http_host) - 1 +
     sizeof(http_crnl) - 1 +
@@ -223,7 +223,7 @@ senddata(void)
     cptr = copy_string_P(cptr, http_get, sizeof(http_get) - 1);
     cptr = copy_string(cptr, s.file, strlen(s.file));
     *cptr++ = ISO_space;
-    cptr = copy_string_P(cptr, http_10, sizeof(http_10) - 1);
+    cptr = copy_string_P(cptr, http_11, sizeof(http_11) - 1);
 
     cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
     

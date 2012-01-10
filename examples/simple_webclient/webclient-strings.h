@@ -30,4 +30,4 @@ extern const prog_char http_gif[5];
 extern const prog_char http_jpg[5];
 extern const prog_char http_text[6];
 extern const prog_char http_txt[5];
-extern const prog_char http_user_agent_fields[77];
+extern const prog_char http_user_agent_fields[43];

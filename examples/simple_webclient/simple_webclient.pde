@@ -12,8 +12,7 @@ void dhcp_status(int s,const uint16_t *) {
 
     nanode_log_P(PSTR("Starting web download..."));
     webclient_init();
-    // http://www.yahoo.com/
-    webclient_get_P(PSTR("72.30.2.43"), 80, PSTR("/"));
+    webclient_get_P(PSTR("98.136.240.40"), 80, PSTR("/7159/6645514331_38eb2bdeaa_s.jpg"));
   }
 }
 
