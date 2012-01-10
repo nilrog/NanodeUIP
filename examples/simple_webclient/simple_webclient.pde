@@ -19,6 +19,8 @@ void dhcp_status(int s,const uint16_t *) {
   }
 }
 
+extern uint16_t* __brkval;
+
 void setup() {
   char buf[20];
   byte macaddr[6];
@@ -27,6 +29,7 @@ void setup() {
   Serial.begin(38400);
   printf_begin();
   printf_P(PSTR(__FILE__"\r\n"));
+  printf_P(PSTR("FREE=%u\r\n"),SP-(uint16_t)__brkval);
   
   unio.read(macaddr,NANODE_MAC_ADDRESS,6);
   uip.init(macaddr);
