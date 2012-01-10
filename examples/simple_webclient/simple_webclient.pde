@@ -4,6 +4,9 @@
 #include "webclient.h"
 #include "printf.h"
 
+#undef PSTR
+#define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
+
 void dhcp_status(int s,const uint16_t *) {
   char buf[20]="IP:";
   if (s==DHCP_STATUS_OK) {

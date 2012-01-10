@@ -86,6 +86,9 @@ extern "C"
 
 #undef DNS
 
+#undef PSTR
+#define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
+
 static struct webclient_state s;
 
 /*-----------------------------------------------------------------------------------*/
