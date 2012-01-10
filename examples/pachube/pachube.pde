@@ -7,15 +7,32 @@
 #undef PSTR
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 
+/*
+173.203.98.29
+PUT http://api.pachube.com/v2/feeds/33735.csv HTTP/1.0
+Host: api.pachube.com
+X-PachubeApiKey: 8pvNK_06BCBDXtRwq96si4ikFtKZn4rtDjmFoejHOG2iTDQpdXnu3jjMoDSk_E5_CRVMtjql79Jbz-4CT9HMR1Bs3LpqsV_sHKzmjuAM00Y574bHA3zGlarGhrmj9cFS
+Content-Length: 13
+ 
+1,370
+2,50
+*/
+
+static const char pachube_api_key[] __attribute__ (( section (".progmem") )) = "X-PachubeApiKey: 8pvNK_06BCBDXtRwq96si4ikFtKZn4rtDjmFoejHOG2iTDQpdXnu3jjMoDSk_E5_CRVMtjql79Jbz-4CT9HMR1Bs3LpqsV_sHKzmjuAM00Y574bHA3zGlarGhrmj9cFS";
+
 void dhcp_status(int s,const uint16_t *) {
   char buf[20]="IP:";
   if (s==DHCP_STATUS_OK) {
     uip.get_ip_addr_str(buf+3);
     Serial.println(buf);
 
-    nanode_log_P(PSTR("Starting web download..."));
+    nanode_log_P(PSTR("Starting pachube put..."));
     webclient_init();
-    webclient_get_P(PSTR("98.136.240.40"), 80, PSTR("/7159/6645514331_38eb2bdeaa_s.jpg"));
+
+    char put_values[25] = "1,370\r\n2,50\r\n"; 
+
+    //webclient_get_P(PSTR("98.136.240.40"), 80, PSTR("/7159/6645514331_38eb2bdeaa_s.jpg"));
+    webclient_put_P(PSTR("173.203.98.29"), 80, PSTR("/v2/feeds/33735.csv"), pachube_api_key, put_values);
   }
 }
 
