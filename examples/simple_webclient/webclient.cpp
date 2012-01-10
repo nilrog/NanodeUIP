@@ -161,7 +161,7 @@ webclient_get(const char *host, u16_t port, const char *file)
     }
   }
   
-  conn = uip_connect(ipaddr, htons(port),webclient_appcall);
+  conn = uip_connect(ipaddr, uip_htons(port),webclient_appcall);
   
   if(conn == NULL) {
     return 0;
