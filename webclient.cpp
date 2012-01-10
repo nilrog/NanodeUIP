@@ -197,6 +197,12 @@ webclient_get_P(const prog_char *host, u16_t port, const prog_char *file)
   return result;
 }
 /*-----------------------------------------------------------------------------------*/
+unsigned char
+webclient_put_P(const prog_char * /*host*/, u16_t /*port*/, const prog_char * /*file*/, const prog_char* /*extra_headers*/, const char* /*body*/ )
+{
+  return 0;
+}
+/*-----------------------------------------------------------------------------------*/
 static char *
 copy_string(char *dest,
 	    const char *src, unsigned char len)

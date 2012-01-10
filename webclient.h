@@ -168,6 +168,7 @@ void webclient_init(void);
  */
 unsigned char webclient_get(const char *host, u16_t port, const char *file);
 unsigned char webclient_get_P(const prog_char *host, u16_t port, const prog_char *file);
+unsigned char webclient_put_P(const prog_char *host, u16_t port, const prog_char *file, const prog_char* extra_headers, const char* body );
 
 /**
  * Close the currently open HTTP connection.
