@@ -54,14 +54,17 @@
 
 struct webclient_state {
   u8_t timer;
-  u8_t state;
-  u8_t httpflag;
+  u8_t state:2;
+  u8_t httpflag:2;
+  u8_t request_type:2;
 
   u16_t port;
   char host[40];
   char file[WEBCLIENT_CONF_MAX_URLLEN];
   u16_t getrequestptr;
   u16_t getrequestleft;
+  PGM_P extra_headers;
+  char body[32];
   
   char httpheaderline[80];
   u16_t httpheaderlineptr;

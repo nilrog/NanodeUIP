@@ -79,6 +79,8 @@ extern "C"
 #define HTTPFLAG_MOVED  2
 #define HTTPFLAG_ERROR  3
 
+#define REQUEST_TYPE_GET	0
+#define REQUEST_TYPE_PUT	1
 
 #define ISO_nl       0x0a
 #define ISO_cr       0x0d
@@ -134,6 +136,16 @@ init_connection(void)
     sizeof(http_crnl) - 1 +
     strlen_P(http_user_agent_fields) +
     strlen(s.file) + strlen(s.host);
+
+  if ( s.body[0] )
+    s.getrequestleft += sizeof(http_content_length) - 1 + 3 +
+      sizeof(http_crnl) - 1 +
+      sizeof(s.body);
+
+  if ( pgm_read_byte(s.extra_headers) )
+    s.getrequestleft += strlen_P(s.extra_headers) +
+    sizeof(http_crnl) - 1;
+
   s.getrequestptr = 0;
 
   s.httpheaderlineptr = 0;
@@ -171,6 +183,8 @@ webclient_get(const char *host, u16_t port, const char *file)
   }
   
   s.port = port;
+  s.body[0] = 0;
+  s.extra_headers = PSTR("");
   strncpy(s.file, file, sizeof(s.file));
   strncpy(s.host, host, sizeof(s.host));
   
@@ -198,9 +212,40 @@ webclient_get_P(const prog_char *host, u16_t port, const prog_char *file)
 }
 /*-----------------------------------------------------------------------------------*/
 unsigned char
-webclient_put_P(const prog_char * /*host*/, u16_t /*port*/, const prog_char * /*file*/, const prog_char* /*extra_headers*/, const char* /*body*/ )
+webclient_put_P(const prog_char * host, u16_t port, const prog_char * file, const prog_char* extra_headers, const char* body )
 {
-  return 0;
+  struct uip_conn *conn;
+  uip_ipaddr_t *ipaddr;
+  static uip_ipaddr_t addr;
+  
+  /* First check if the host is an IP address. */
+  ipaddr = &addr;
+  if(uiplib_ipaddrconv(const_cast<char*>(host), (unsigned char *)addr) == 0) {
+    ipaddr = 0;
+#ifdef DNS
+    ipaddr = (uip_ipaddr_t *)resolv_lookup((char*)host);  // cast away const unsafe!
+#endif
+    if(ipaddr == NULL) {
+      return 0;
+    }
+  }
+  
+  conn = uip_connect(ipaddr, uip_htons(port),webclient_appcall);
+  
+  if(conn == NULL) {
+    return 0;
+  }
+  
+  s.extra_headers = extra_headers;
+  strncpy(s.body, body, sizeof(s.body));
+  s.body[sizeof(s.body)-1] = 0;
+
+  s.port = port;
+  strncpy(s.file, file, sizeof(s.file));
+  strncpy(s.host, host, sizeof(s.host));
+  
+  init_connection();
+  return 1;
 }
 /*-----------------------------------------------------------------------------------*/
 static char *
@@ -229,7 +274,11 @@ senddata(void)
   if(s.getrequestleft > 0) {
     cptr = getrequest = (char *)uip_appdata;
 
-    cptr = copy_string_P(cptr, http_get, sizeof(http_get) - 1);
+    if ( s.request_type == REQUEST_TYPE_GET )
+      cptr = copy_string_P(cptr, http_get, sizeof(http_get) - 1);
+    else if ( s.request_type == REQUEST_TYPE_PUT )
+      cptr = copy_string_P(cptr, http_put, sizeof(http_put) - 1);
+    
     cptr = copy_string(cptr, s.file, strlen(s.file));
     *cptr++ = ISO_space;
     cptr = copy_string_P(cptr, http_11, sizeof(http_11) - 1);
@@ -240,13 +289,33 @@ senddata(void)
     cptr = copy_string(cptr, s.host, strlen(s.host));
     cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
 
+    if ( s.body[0] ) {
+      cptr = copy_string_P(cptr, http_content_length, sizeof(http_content_length) - 1);
+      char buf[4];
+      snprintf(buf,sizeof(buf),"%03u",strlen(s.body));
+      cptr = copy_string(cptr, buf, 3);
+      cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
+    } 
+
+    if ( pgm_read_byte(s.extra_headers) ) {
+      cptr = copy_string_P(cptr, s.extra_headers, sizeof(s.extra_headers) - 1);
+      cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
+    }
+
     cptr = copy_string_P(cptr, http_user_agent_fields,
 		       strlen_P(http_user_agent_fields));
+    
+    if ( s.body[0] ) {
+      cptr = copy_string(cptr,s.body,strlen(s.body));
+    }
     
     len = s.getrequestleft > uip_mss()?
       uip_mss():
       s.getrequestleft;
     uip_send(&(getrequest[s.getrequestptr]), len);
+
+    *cptr++ = 0;
+    uip_log(getrequest);
   }
 }
 /*-----------------------------------------------------------------------------------*/
