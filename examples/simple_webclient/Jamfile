@@ -152,11 +152,6 @@ rule Objects
         }
 }
 
-actions Link bind NEEDLIBS
-{
-    $(LINK) $(LINKFLAGS) -o $(<) $(UNDEFS) $(NEEDLIBS) $(LINKLIBS) $(>)
-}
-
 rule Library
 {
 	LibraryFromObjects $(<) : $(>:B)$(SUFOBJ) ;
@@ -200,7 +195,7 @@ actions UploadAction
 rule Arduino
 {
 	LINKFLAGS on $(<) = $(LINKFLAGS) -Wl,-Map=$(LOCATE_TARGET)/$(<:B).map ;
-	#LinkLibraries $(<) : core libs ;
+	LinkLibraries $(<) : libs core ;
 	Main $(<) : $(>) ;
 	Hex $(<:B).hex : $(<) ;
 	for _p in $(PORTS)
@@ -214,11 +209,12 @@ rule Arduino
 #
 
 # Grab everything from the core directory
-#Library core : [ GLOB $(ARDUINO_CORE) : *.c *.cpp ] ;
+Library core.a : [ GLOB $(ARDUINO_CORE) : *.c *.cpp ] ;
 
 # Grab everything from libraries.  To avoid this "grab everything" behaviour, you
 # can specify specific modules to pick up in PROJECT_MODULES
-#Library libs : [ GLOB $(ARDUINO_LIB)/$(PROJECT_LIBS) $(ARDUINO_LIB)/$(PROJECT_LIBS)/utility $(SKETCH_LIB)/$(PROJECT_LIBS) : *.cpp *.c ] ;
+Library libs.a : [ GLOB $(ARDUINO_LIB)/$(PROJECT_LIBS) $(ARDUINO_LIB)/$(PROJECT_LIBS)/utility $(SKETCH_LIB)/$(PROJECT_LIBS) : *.cpp *.c ] ;
 
 # Main output executable
-Arduino $(PWD:B).elf : $(PROJECT_MODULES) [ GLOB $(ARDUINO_CORE) : *.c *.cpp ] [ GLOB $(ARDUINO_LIB)/$(PROJECT_LIBS) $(ARDUINO_LIB)/$(PROJECT_LIBS)/utility $(SKETCH_LIB)/$(PROJECT_LIBS) : *.cpp *.c ] [ GLOB $(PROJECT_DIRS) : *.c *.cpp *.pde *.ino ] ;
+Arduino $(PWD:B).elf : [ GLOB $(PROJECT_DIRS) : *.c *.cpp *.pde *.ino ] ;
+# [ GLOB $(ARDUINO_CORE) : *.c *.cpp ] [ GLOB $(ARDUINO_LIB)/$(PROJECT_LIBS) $(ARDUINO_LIB)/$(PROJECT_LIBS)/utility $(SKETCH_LIB)/$(PROJECT_LIBS) : *.cpp *.c ] 
