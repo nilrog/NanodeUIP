@@ -36,6 +36,9 @@
 #include "NanodeUIP.h"
 #include "shell.h"
 
+#undef PSTR
+#define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
+
 struct ptentry {
   PGM_P commandstr;
   void (* pfunc)(const char *str);
@@ -76,7 +79,7 @@ extern int errno;
 
 /*---------------------------------------------------------------------------*/
 static void
-show_memory(const char *str)
+show_memory(const char *)
 {
   char buf[25];
   sprintf_P(buf,PSTR("SP = 0x%x"),SP);
@@ -107,14 +110,14 @@ unknown_command(const char *str)
 }
 /*---------------------------------------------------------------------------*/
 
-const char stats_str_p[] PROGMEM = "stats";
-const char conn_str_p[] PROGMEM = "conn";
-const char help_str_p[] PROGMEM = "help";
-const char exit_str_p[] PROGMEM = "exit";
-const char q_str_p[] PROGMEM = "?";
-const char mem_str_p[] PROGMEM = "mem";
+const char stats_str_p[] __attribute__ (( section(".progmem") )) = "stats";
+const char conn_str_p[] __attribute__ (( section(".progmem") )) = "conn";
+const char help_str_p[] __attribute__ (( section(".progmem") )) = "help";
+const char exit_str_p[] __attribute__ (( section(".progmem") )) = "exit";
+const char q_str_p[] __attribute__ (( section(".progmem") ))  = "?";
+const char mem_str_p[] __attribute__ (( section(".progmem") ))  = "mem";
 
-static const struct ptentry parsetab[] PROGMEM =
+static const struct ptentry parsetab[] __attribute__ (( section(".progmem") ))  =
   {{stats_str_p, help},
    {conn_str_p, help},
    {help_str_p, help},

@@ -191,7 +191,7 @@ shell_output_P_1st(PGM_P str1, const char* str2)
 void
 telnetd_init(void)
 {
-  uip_listen(HTONS(23),telnetd_appcall);
+  uip_listen(UIP_HTONS(23),telnetd_appcall);
   shell_init();
 }
 /*---------------------------------------------------------------------------*/

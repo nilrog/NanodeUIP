@@ -10,6 +10,8 @@
 #include "dhcpc.h"
 #include "resolv.h"
 
+#undef PSTR
+#define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 
 void nanode_log(char *msg) {
   Serial.println(msg);
@@ -146,7 +148,7 @@ void NanodeUIP::poll(void) {
 
   uip_len = enc28j60PacketReceive(UIP_BUFSIZE,uip_buf);
   if(uip_len > 0) {
-    if(BUF->type == HTONS(UIP_ETHTYPE_IP)) {
+    if(BUF->type == UIP_HTONS(UIP_ETHTYPE_IP)) {
       uip_arp_ipin();
       uip_input();
       /* If the above function invocation resulted in data that
@@ -156,7 +158,7 @@ void NanodeUIP::poll(void) {
 	uip_arp_out();
 	enc28j60PacketSend(uip_len,uip_buf);
       }
-    } else if(BUF->type == HTONS(UIP_ETHTYPE_ARP)) {
+    } else if(BUF->type == UIP_HTONS(UIP_ETHTYPE_ARP)) {
       uip_arp_arpin();
       /* If the above function invocation resulted in data that
 	 should be sent out on the network, the global variable
