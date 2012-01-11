@@ -85,12 +85,14 @@ uint32_t started_at = 0;
 void webclient_datahandler(char *data, u16_t len)
 {
   //printf_P(PSTR("%lu: webclient_datahandler data=%p len=%u\r\n"),millis(),data,len);
-  Serial.print('.');
 
   if ( ! started_at )
     started_at = millis();
 
   size_received += len;
+
+  if ( len )
+  {
 #if 0
   // Dump out the text
   while(len--)
@@ -101,13 +103,17 @@ void webclient_datahandler(char *data, u16_t len)
     Serial.print(c);
   }
   Serial.println();
+#else  
+  Serial.print('.');
 #endif
+  } 
 
   // If data is NULL, we are done.  Print the stats
-  if (!data)
+  if (!data && size_received)
   {
     Serial.println();
     printf_P(PSTR("%lu: DONE. Received %lu bytes in %lu msec.\r\n"),millis(),size_received,millis()-started_at);
+    size_received = 0;
   }
 }
 

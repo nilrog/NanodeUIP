@@ -182,6 +182,7 @@ webclient_get(const char *host, u16_t port, const char *file)
     return 0;
   }
   
+  s.request_type = REQUEST_TYPE_GET; 
   s.port = port;
   s.body[0] = 0;
   s.extra_headers = PSTR("");
@@ -218,12 +219,15 @@ webclient_put_P(const prog_char * host, u16_t port, const prog_char * file, cons
   uip_ipaddr_t *ipaddr;
   static uip_ipaddr_t addr;
   
+  strncpy_P(s.file, file, sizeof(s.file));
+  strncpy_P(s.host, host, sizeof(s.host));
+  
   /* First check if the host is an IP address. */
   ipaddr = &addr;
-  if(uiplib_ipaddrconv(const_cast<char*>(host), (unsigned char *)addr) == 0) {
+  if(uiplib_ipaddrconv(const_cast<char*>(s.host), (unsigned char *)addr) == 0) {
     ipaddr = 0;
 #ifdef DNS
-    ipaddr = (uip_ipaddr_t *)resolv_lookup((char*)host);  // cast away const unsafe!
+    ipaddr = (uip_ipaddr_t *)resolv_lookup((char*)s.host);  // cast away const unsafe!
 #endif
     if(ipaddr == NULL) {
       return 0;
@@ -236,15 +240,17 @@ webclient_put_P(const prog_char * host, u16_t port, const prog_char * file, cons
     return 0;
   }
   
+  strncpy(s.host, /*host*/ "api.pachube.com", sizeof(s.host));
+  
   s.extra_headers = extra_headers;
   strncpy(s.body, body, sizeof(s.body));
   s.body[sizeof(s.body)-1] = 0;
 
+  s.request_type = REQUEST_TYPE_PUT; 
   s.port = port;
-  strncpy(s.file, file, sizeof(s.file));
-  strncpy(s.host, host, sizeof(s.host));
   
   init_connection();
+  uip_log_P(PSTR("Connection started."));
   return 1;
 }
 /*-----------------------------------------------------------------------------------*/
@@ -298,7 +304,7 @@ senddata(void)
     } 
 
     if ( pgm_read_byte(s.extra_headers) ) {
-      cptr = copy_string_P(cptr, s.extra_headers, sizeof(s.extra_headers) - 1);
+      cptr = copy_string_P(cptr, s.extra_headers, strlen_P(s.extra_headers));
       cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
     }
 
@@ -316,6 +322,10 @@ senddata(void)
 
     *cptr++ = 0;
     uip_log(getrequest);
+
+    static uint8_t counter = 2;
+    if ( ! --counter )
+      while(1);
   }
 }
 /*-----------------------------------------------------------------------------------*/
