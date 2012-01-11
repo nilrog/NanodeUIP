@@ -65,8 +65,8 @@ void resolv_found(char *name, u16_t *ipaddr);
 void resolv_conf(const u16_t *dnsserver);
 u16_t *resolv_getserver(void);
 void resolv_init(void);
-u16_t *resolv_lookup(char *name);
-void resolv_query(char *name);
+u16_t *resolv_lookup(const char *name);
+void resolv_query(const char *name);
 
 #endif /* __RESOLV_H__ */
 

@@ -133,11 +133,11 @@ void NanodeUIP::init_resolv(resolv_result_fn *callback) {
   resolv_init();
 }
 
-void NanodeUIP::query_name(char *name) {
+void NanodeUIP::query_name(const char *name) {
   resolv_query(name);
 }
 
-uint16_t *lookup_name(char *name) {
+uint16_t *lookup_name(const char *name) {
   return resolv_lookup(name);
 }
 

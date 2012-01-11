@@ -347,7 +347,7 @@ resolv_appcall(void)
  */
 /*---------------------------------------------------------------------------*/
 void
-resolv_query(char *name)
+resolv_query(const char *name)
 {
   static u8_t i;
   static u8_t lseq, lseqi;
@@ -393,7 +393,7 @@ resolv_query(char *name)
  */
 /*---------------------------------------------------------------------------*/
 u16_t *
-resolv_lookup(char *name)
+resolv_lookup(const char *name)
 {
   static u8_t i;
   struct namemap *nameptr;

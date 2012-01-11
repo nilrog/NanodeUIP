@@ -70,10 +70,10 @@ class NanodeUIP {
 
   /* Start looking up a name; when found it will be cached, and the
      resolver callback function will be called. */
-  void query_name(char *name);
+  void query_name(const char *name);
   
   /* Return an address from the cache */
-  uint16_t *lookup_name(char *name);
+  uint16_t *lookup_name(const char *name);
 };
 
 extern NanodeUIP uip; // There can be only one!
