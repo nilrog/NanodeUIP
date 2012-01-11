@@ -11,6 +11,9 @@
 #include "uip.h"
 #include "timer.h"
 
+// The pin where the nanode hardware wires the ENC28J60 CS line
+const uint8_t NANODE_NET_CS = 8;
+
 extern void resolv_conf(const uint16_t *dnsserver);
 extern void nanode_log(char *msg);
 extern void nanode_log_P(PGM_P msg);
@@ -35,7 +38,7 @@ class NanodeUIP {
      initialised.   Call the init() function from your sketch instead. */
   NanodeUIP(void);
 
-  void init(const byte *macaddr); // Call in setup()
+  void init(const byte *macaddr, uint8_t cs_pin = NANODE_NET_CS ); // Call in setup()
   void poll(void); // Must be called regularly in your sketch's loop()
 
   /* Link status functions */
