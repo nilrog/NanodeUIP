@@ -23,20 +23,19 @@ static app_flags_t app_flags;
 static const char pachube_api_key[] __attribute__ (( section (".progmem") )) = "X-PachubeApiKey: 8pvNK_06BCBDXtRwq96si4ikFtKZn4rtDjmFoejHOG2iTDQpdXnu3jjMoDSk_E5_CRVMtjql79Jbz-4CT9HMR1Bs3LpqsV_sHKzmjuAM00Y574bHA3zGlarGhrmj9cFS";
 
 static void dhcp_status(int s,const uint16_t *dnsaddr) {
-  char buf[20]="IP:";
+  char buf[20];
   if (s==DHCP_STATUS_OK) {
     resolv_conf(dnsaddr);
-    uip.get_ip_addr_str(buf+3);
-    Serial.println(buf);
+    uip.get_ip_addr_str(buf);
+    printf_P(PSTR("%lu: IP: %s\r\n"),millis(),buf);
     app_flags.have_ip = 1;
   }
 }
 
 static void resolv_found(char *name,uint16_t *addr) {
-  char buf[30]=": addr=";
-  Serial.print(name);
-  uip.format_ipaddr(buf+7,addr);
-  Serial.println(buf);
+  char buf[20];
+  uip.format_ipaddr(buf,addr);
+  printf_P(PSTR("%lu: DNS: %s has address %s\r\n"),millis(),name,buf);
   app_flags.have_resolv = 1;
 }
 
@@ -50,14 +49,15 @@ void setup() {
   Serial.begin(38400);
   printf_begin();
   printf_P(PSTR(__FILE__"\r\n"));
-  printf_P(PSTR("FREE=%u\r\n"),SP-(uint16_t)__brkval);
+  printf_P(PSTR("FREE: %u\r\n"),SP-(uint16_t)__brkval);
   
   unio.read(macaddr,NANODE_MAC_ADDRESS,6);
   uip.init(macaddr);
   uip.get_mac_str(buf);
-  Serial.println(buf);
+  printf_P(PSTR("MAC: %s\r\n"),buf);
   uip.wait_for_link();
   nanode_log_P(PSTR("Link is up"));
+  printf_P(PSTR("+READY\r\n"));
   uip.start_dhcp(dhcp_status);
   uip.init_resolv(resolv_found);
   app_state = state_needip;
@@ -87,13 +87,19 @@ void loop() {
 	// Try to connect
 	nanode_log_P(PSTR("Starting pachube put..."));
 	webclient_init();
-	char put_values[25] = "1,370\r\n2,50\r\n"; 
+
+	// Log the current app time and free memory
+	char put_values[25];
+	snprintf_P(put_values,sizeof(put_values),PSTR("1,%lu\r\n2,%u\r\n"),millis(),SP-(uint16_t)__brkval); 
 	webclient_put_P(PSTR("api.pachube.com"), 80, PSTR("/v2/feeds/33735.csv"), pachube_api_key, put_values);
 	app_state = state_connecting;
       }
       break;
-    case state_connecting:
     case state_done:
+      printf_P(PSTR("+OK\r\n"));
+      app_state = state_none;
+      break;
+    case state_connecting:
     case state_none:
     case state_invalid:
       break;
