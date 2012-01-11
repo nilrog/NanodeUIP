@@ -20,20 +20,26 @@ Content-Length: 13
 
 static const char pachube_api_key[] __attribute__ (( section (".progmem") )) = "X-PachubeApiKey: 8pvNK_06BCBDXtRwq96si4ikFtKZn4rtDjmFoejHOG2iTDQpdXnu3jjMoDSk_E5_CRVMtjql79Jbz-4CT9HMR1Bs3LpqsV_sHKzmjuAM00Y574bHA3zGlarGhrmj9cFS";
 
-void dhcp_status(int s,const uint16_t *) {
+void dhcp_status(int s,const uint16_t *dnsaddr) {
   char buf[20]="IP:";
   if (s==DHCP_STATUS_OK) {
+    resolv_conf(dnsaddr);
     uip.get_ip_addr_str(buf+3);
     Serial.println(buf);
-
-    nanode_log_P(PSTR("Starting pachube put..."));
-    webclient_init();
-
-    char put_values[25] = "1,370\r\n2,50\r\n"; 
-
-    //webclient_get_P(PSTR("98.136.240.40"), 80, PSTR("/7159/6645514331_38eb2bdeaa_s.jpg"));
-    webclient_put_P(PSTR("173.203.98.29"), 80, PSTR("/v2/feeds/33735.csv"), pachube_api_key, put_values);
+    uip.query_name("api.pachube.com");
   }
+}
+
+static void resolv_found(char *name,uint16_t *addr) {
+  char buf[30]=": addr=";
+  Serial.print(name);
+  uip.format_ipaddr(buf+7,addr);
+  Serial.println(buf);
+    
+  nanode_log_P(PSTR("Starting pachube put..."));
+  webclient_init();
+  char put_values[25] = "1,370\r\n2,50\r\n"; 
+  webclient_put_P(PSTR("api.pachube.com"), 80, PSTR("/v2/feeds/33735.csv"), pachube_api_key, put_values);
 }
 
 extern uint16_t* __brkval;
@@ -55,6 +61,7 @@ void setup() {
   uip.wait_for_link();
   nanode_log_P(PSTR("Link is up"));
   uip.start_dhcp(dhcp_status);
+  uip.init_resolv(resolv_found);
   nanode_log_P(PSTR("setup() done"));
 }
 

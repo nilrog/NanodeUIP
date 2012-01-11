@@ -64,6 +64,7 @@ extern "C"
 #include "uiplib.h"
 }
 
+#include "resolv.h"
 #include "webclient.h"
 #include "webclient-strings.h"
 
@@ -86,7 +87,7 @@ extern "C"
 #define ISO_cr       0x0d
 #define ISO_space    0x20
 
-#undef DNS
+#define DNS 1
 
 #undef PSTR
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
@@ -224,10 +225,10 @@ webclient_put_P(const prog_char * host, u16_t port, const prog_char * file, cons
   
   /* First check if the host is an IP address. */
   ipaddr = &addr;
-  if(uiplib_ipaddrconv(const_cast<char*>(s.host), (unsigned char *)addr) == 0) {
+  if(uiplib_ipaddrconv(s.host, (unsigned char *)addr) == 0) {
     ipaddr = 0;
 #ifdef DNS
-    ipaddr = (uip_ipaddr_t *)resolv_lookup((char*)s.host);  // cast away const unsafe!
+    ipaddr = (uip_ipaddr_t *)resolv_lookup(s.host);  // cast away const unsafe!
 #endif
     if(ipaddr == NULL) {
       return 0;
@@ -239,8 +240,6 @@ webclient_put_P(const prog_char * host, u16_t port, const prog_char * file, cons
   if(conn == NULL) {
     return 0;
   }
-  
-  strncpy(s.host, /*host*/ "api.pachube.com", sizeof(s.host));
   
   s.extra_headers = extra_headers;
   strncpy(s.body, body, sizeof(s.body));
