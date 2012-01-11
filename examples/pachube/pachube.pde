@@ -147,7 +147,7 @@ void webclient_connected(void)
  */
 void webclient_timedout(void)
 {
-  printf_P(PSTR("webclient_timedout\r\n"));
+  uip_log_P(PSTR("webclient_timedout\r\n"));
 }
 
 /****************************************************************************/
@@ -161,7 +161,7 @@ void webclient_timedout(void)
  */
 void webclient_aborted(void)
 {
-  printf_P(PSTR("webclient_aborted\r\n"));
+  uip_log_P(PSTR("webclient_aborted\r\n"));
 }
 
 /****************************************************************************/
@@ -174,7 +174,7 @@ void webclient_aborted(void)
  */
 void webclient_closed(void)
 {
-  printf_P(PSTR("webclient_closed\r\n"));
+  uip_log_P(PSTR("webclient_closed\r\n"));
 }
 
 // vim:cin:ai:sts=2 sw=2 ft=cpp
