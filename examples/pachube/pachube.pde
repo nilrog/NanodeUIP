@@ -149,8 +149,6 @@ uint32_t started_at = 0;
 /****************************************************************************/
 void webclient_datahandler(char *data, u16_t len)
 {
-  //printf_P(PSTR("%lu: webclient_datahandler data=%p len=%u\r\n"),millis(),data,len);
-
   if ( len )
   {
     if ( ! started_at )
@@ -187,26 +185,12 @@ void webclient_datahandler(char *data, u16_t len)
 }
 
 /****************************************************************************/
-/**
- * Callback function that is called from the webclient code when the
- * HTTP connection has been connected to the web server.
- *
- * This function must be implemented by the module that uses the
- * webclient code.
- */
 void webclient_connected(void)
 {
   uip_log_P(PSTR("webclient_connected"));
 }
 
 /****************************************************************************/
-/**
- * Callback function that is called from the webclient code if the
- * HTTP connection to the web server has timed out.
- *
- * This function must be implemented by the module that uses the
- * webclient code.
- */
 void webclient_timedout(void)
 {
   uip_log_P(PSTR("webclient_timedout\r\n"));
@@ -214,14 +198,6 @@ void webclient_timedout(void)
 }
 
 /****************************************************************************/
-/**
- * Callback function that is called from the webclient code if the
- * HTTP connection to the web server has been aborted by the web
- * server.
- *
- * This function must be implemented by the module that uses the
- * webclient code.
- */
 void webclient_aborted(void)
 {
   uip_log_P(PSTR("webclient_aborted\r\n"));
@@ -229,13 +205,6 @@ void webclient_aborted(void)
 }
 
 /****************************************************************************/
-/**
- * Callback function that is called from the webclient code when the
- * HTTP connection to the web server has been closed.
- *
- * This function must be implemented by the module that uses the
- * webclient code.
- */
 void webclient_closed(void)
 {
   uip_log_P(PSTR("webclient_closed\r\n"));
