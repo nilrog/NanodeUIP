@@ -53,17 +53,23 @@ uint16_t num_samples_remaining;
 struct timer send_sample_timer;
 
 void setup() {
-  char buf[20];
-  byte macaddr[6];
-  NanodeUNIO unio(NANODE_MAC_DEVICE);
-
   Serial.begin(38400);
   printf_begin();
   printf_P(PSTR(__FILE__"\r\n"));
   printf_P(PSTR("FREE: %u\r\n"),SP-(uint16_t)__brkval);
-  
+
+#if 1  // Nanode
+  byte macaddr[6];
+  NanodeUNIO unio(NANODE_MAC_DEVICE);
   unio.read(macaddr,NANODE_MAC_ADDRESS,6);
   uip.init(macaddr);
+#endif
+#if 0 // EtherShield
+  byte macaddr[6] = { 0x2, 0x00, 0x00, 0x1, 0x2, 0x3 }; 
+  uip.init(macaddr,10);
+#endif
+
+  char buf[20];
   uip.get_mac_str(buf);
   printf_P(PSTR("MAC: %s\r\n"),buf);
   uip.wait_for_link();
@@ -141,21 +147,6 @@ uint32_t size_received = 0;
 uint32_t started_at = 0;
 
 /****************************************************************************/
-/**
- * Callback function that is called from the webclient code when HTTP
- * data has been received.
- *
- * This function must be implemented by the module that uses the
- * webclient code. The function is called from the webclient module
- * when HTTP data has been received. The function is not called when
- * HTTP headers are received, only for the actual data.
- *
- * \note This function is called many times, repetedly, when data is
- * being received, and not once when all data has been received.
- *
- * \param data A pointer to the data that has been received.
- * \param len The length of the data that has been received.
- */
 void webclient_datahandler(char *data, u16_t len)
 {
   //printf_P(PSTR("%lu: webclient_datahandler data=%p len=%u\r\n"),millis(),data,len);
