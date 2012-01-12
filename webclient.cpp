@@ -321,10 +321,6 @@ senddata(void)
 
     *cptr++ = 0;
     uip_log(getrequest);
-
-    static uint8_t counter = 2;
-    if ( ! --counter )
-      while(1);
   }
 }
 /*-----------------------------------------------------------------------------------*/
