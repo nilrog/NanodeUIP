@@ -8,7 +8,7 @@
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 
 enum app_states_e { state_none = 0, state_needip, state_needresolv, 
-  state_noconnection, state_connecting, state_done, state_invalid };
+  state_noconnection, state_connecting, state_waiting, state_done, state_invalid };
 
 static app_states_e app_state;
 
@@ -41,6 +41,17 @@ static void resolv_found(char *name,uint16_t *addr) {
 
 extern uint16_t* __brkval;
 
+// Returns a CSV file, suitable for posting to pachube.
+// In this example, the 'reading' is the current system time adn the free
+// memory.
+static void take_reading(char* buf, size_t len)
+{
+  snprintf_P(buf,len,PSTR("1,%lu\r\n2,%u\r\n"),millis(),SP-(uint16_t)__brkval); 
+}
+	
+uint16_t num_samples_remaining;
+struct timer send_sample_timer;
+
 void setup() {
   char buf[20];
   byte macaddr[6];
@@ -57,10 +68,21 @@ void setup() {
   printf_P(PSTR("MAC: %s\r\n"),buf);
   uip.wait_for_link();
   nanode_log_P(PSTR("Link is up"));
-  printf_P(PSTR("+READY\r\n"));
   uip.start_dhcp(dhcp_status);
   uip.init_resolv(resolv_found);
   app_state = state_needip;
+  
+  // We'll send a sample every so often
+  timer_set(&send_sample_timer, CLOCK_SECOND * 2);
+  
+  printf_P(PSTR("+READY\r\n"));
+  printf_P(PSTR("How many readings to send, or '0' to send lots?\r\n"));
+  while ( !Serial.available() );
+  char c = Serial.read();
+  if ( isdigit(c) && c > '0' )
+    num_samples_remaining = c - '0';
+  else
+    num_samples_remaining = -1;
 }
 
 void loop() {
@@ -80,6 +102,7 @@ void loop() {
       if ( app_flags.have_resolv )
       {
 	app_state = state_noconnection;
+	timer_restart(&send_sample_timer);
       }
       break;
     case state_noconnection:
@@ -88,16 +111,23 @@ void loop() {
 	nanode_log_P(PSTR("Starting pachube put..."));
 	webclient_init();
 
-	// Log the current app time and free memory
-	char put_values[25];
-	snprintf_P(put_values,sizeof(put_values),PSTR("1,%lu\r\n2,%u\r\n"),millis(),SP-(uint16_t)__brkval); 
-	webclient_put_P(PSTR("api.pachube.com"), 80, PSTR("/v2/feeds/33735.csv"), pachube_api_key, put_values);
+	// Send a 'reading' 
+	char reading_buffer[25];
+	take_reading(reading_buffer,sizeof(reading_buffer));
+	webclient_put_P(PSTR("api.pachube.com"), 80, PSTR("/v2/feeds/33735.csv"), pachube_api_key, reading_buffer);
 	app_state = state_connecting;
       }
       break;
     case state_done:
       printf_P(PSTR("+OK\r\n"));
       app_state = state_none;
+      break;
+    case state_waiting:
+      if ( timer_expired(&send_sample_timer) )
+      {
+	app_state = state_noconnection;
+	timer_reset(&send_sample_timer);
+      }
       break;
     case state_connecting:
     case state_none:
@@ -158,7 +188,10 @@ void webclient_datahandler(char *data, u16_t len)
     printf_P(PSTR("%lu: DONE. Received %lu bytes in %lu msec.\r\n"),millis(),size_received,millis()-started_at);
     size_received = 0;
     started_at = 0;
-    app_state = state_done;
+    if ( --num_samples_remaining )
+      app_state = state_waiting;
+    else
+      app_state = state_done;
   }
 }
 
