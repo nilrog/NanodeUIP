@@ -170,8 +170,8 @@ void webclient_init(void);
  * \retval 1 if the connection was initiated.
  */
 unsigned char webclient_get(const char *host, u16_t port, const char *file);
-unsigned char webclient_get_P(const prog_char *host, u16_t port, const prog_char *file);
-unsigned char webclient_put_P(const prog_char *host, u16_t port, const prog_char *file, const prog_char* extra_headers, const char* body );
+unsigned char webclient_get_P(const char *host, u16_t port, const char *file);
+unsigned char webclient_put_P(const char *host, u16_t port, const char *file, const char* extra_headers, const char* body );
 
 /**
  * Close the currently open HTTP connection.

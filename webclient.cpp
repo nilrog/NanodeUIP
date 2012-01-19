@@ -195,7 +195,7 @@ webclient_get(const char *host, u16_t port, const char *file)
 }
 /*-----------------------------------------------------------------------------------*/
 unsigned char
-webclient_get_P(const prog_char *host, u16_t port, const prog_char *file)
+webclient_get_P(const char *host, u16_t port, const char *file)
 {
   unsigned char result;
 
@@ -214,7 +214,7 @@ webclient_get_P(const prog_char *host, u16_t port, const prog_char *file)
 }
 /*-----------------------------------------------------------------------------------*/
 unsigned char
-webclient_put_P(const prog_char * host, u16_t port, const prog_char * file, const prog_char* extra_headers, const char* body )
+webclient_put_P(const char * host, u16_t port, const char * file, const char* extra_headers, const char* body )
 {
   struct uip_conn *conn;
   uip_ipaddr_t *ipaddr;
@@ -263,7 +263,7 @@ copy_string(char *dest,
 /*-----------------------------------------------------------------------------------*/
 static char *
 copy_string_P(char *dest,
-	    const prog_char *src, unsigned char len)
+	    const char *src, unsigned char len)
 {
   strncpy_P(dest, src, len);
   return dest + len;
@@ -422,7 +422,7 @@ casecmp(char *str1, const char *str2, char len)
 #endif
 /*-----------------------------------------------------------------------------------*/
 static char
-casecmp_P(char *str1, const prog_char *str2, char len)
+casecmp_P(char *str1, const char *str2, char len)
 {
   static char c;
   
