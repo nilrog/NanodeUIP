@@ -1,0 +1,14 @@
+SubDir TOP uip webserver ;
+
+# Set up output directories
+LOCATE_TARGET	= $(SEARCH_SOURCE)/$(F_CPU) ;
+LOCATE_SOURCE	= $(LOCATE_TARGET) ;
+
+# Pull in local libraries
+SKETCH_LIBS	= NanodeUIP ;
+HDRS		+= $(SKETCH_DIR)/libraries/$(SKETCH_LIBS) ;
+Library $(LOCATE_TARGET)/libs : [ GLOB $(SKETCH_DIR)/libraries/$(SKETCH_LIBS) : $(MODULE_EXT) ] ; 
+
+# Main output executable
+Arduino $(SEARCH_SOURCE:B).elf : [ GLOB $(SEARCH_SOURCE) : $(MODULE_EXT) ] ;
+LinkLibraries $(SEARCH_SOURCE:B).elf : $(LOCATE_TARGET)/libs ; 
