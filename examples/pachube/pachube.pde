@@ -46,7 +46,7 @@ extern uint16_t* __brkval;
 // memory.
 static void take_reading(char* buf, size_t len)
 {
-  snprintf_P(buf,len,PSTR("1,%lu\r\n2,%u\r\n"),millis(),SP-(uint16_t)__brkval); 
+  snprintf_P(buf,len,PSTR("millis,%lu\r\nfree,%u\r\n"),millis(),SP-(uint16_t)__brkval); 
 }
 	
 uint16_t num_samples_remaining;
@@ -118,9 +118,9 @@ void loop() {
 	webclient_init();
 
 	// Send a 'reading' 
-	char reading_buffer[25];
+	char reading_buffer[40];
 	take_reading(reading_buffer,sizeof(reading_buffer));
-	webclient_put_P(PSTR("api.pachube.com"), 80, PSTR("/v2/feeds/33735.csv"), pachube_api_key, reading_buffer);
+	webclient_put_P(PSTR("api.pachube.com"), 80, PSTR("/v2/feeds/45037.csv"), pachube_api_key, reading_buffer);
 	app_state = state_connecting;
       }
       break;
