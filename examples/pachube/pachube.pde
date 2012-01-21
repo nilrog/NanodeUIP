@@ -4,8 +4,11 @@
 #include "webclient.h"
 #include "printf.h"
 
+// To ensure that uip-conf.h is set up correctly to accomodate webclient.
 UIPASSERT(sizeof(struct webclient_state)<=TCP_APP_STATE_SIZE)
 
+// Dear compiler, please be quiet about those uninitalized progmem 
+// warnings.
 #undef PSTR
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 
