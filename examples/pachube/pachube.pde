@@ -4,6 +4,8 @@
 #include "webclient.h"
 #include "printf.h"
 
+UIPASSERT(sizeof(struct webclient_state)<=TCP_APP_STATE_SIZE)
+
 #undef PSTR
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 
