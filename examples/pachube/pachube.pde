@@ -1,8 +1,26 @@
-#include <NanodeUNIO.h>
+/*
+ Copyright (C) 2012 J. Coliz <maniacbug@ymail.com>
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ version 2 as published by the Free Software Foundation.
+ */
+
+/**
+ * @file pachube.pde 
+ *
+ * This example shows how to use NanodeUIP to upload readings
+ * to Pachube.
+ */
+
+//#define ETHERSHIELD // uncomment to run on EtherShield
 #include <NanodeUIP.h>
 #include <psock.h>
 #include "webclient.h"
 #include "printf.h"
+#ifndef ETHERSHIELD
+#include <NanodeUNIO.h>
+#endif
 
 // To ensure that uip-conf.h is set up correctly to accomodate webclient.
 UIPASSERT(sizeof(struct webclient_state)<=TCP_APP_STATE_SIZE)
@@ -58,21 +76,22 @@ uint16_t num_samples_remaining;
 struct timer send_sample_timer;
 
 void setup() {
-  Serial.begin(38400);
-  printf_begin();
-  printf_P(PSTR(__FILE__"\r\n"));
-  printf_P(PSTR("FREE: %u\r\n"),SP-(uint16_t)__brkval);
 
-#if 1  // Nanode
+#ifdef ETHERSHIELD // EtherShield
+  byte macaddr[6] = { 0x2, 0x00, 0x00, 0x1, 0x2, 0x3 };
+  uip.init(macaddr,SS);
+#else  // Nanode
   byte macaddr[6];
   NanodeUNIO unio(NANODE_MAC_DEVICE);
   unio.read(macaddr,NANODE_MAC_ADDRESS,6);
   uip.init(macaddr);
 #endif
-#if 0 // EtherShield
-  byte macaddr[6] = { 0x2, 0x00, 0x00, 0x1, 0x2, 0x3 }; 
-  uip.init(macaddr,10);
-#endif
+
+  Serial.begin(38400);
+  printf_begin();
+  printf_P(PSTR(__FILE__"\r\n"));
+  printf_P(PSTR("SP: %04x\r\n"),SP);
+  printf_P(PSTR("FREE: %u\r\n"),SP-(uint16_t)__brkval);
 
   char buf[20];
   uip.get_mac_str(buf);
