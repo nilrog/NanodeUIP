@@ -59,6 +59,7 @@ UIPASSERT(sizeof(struct webclient_state)<=TCP_APP_STATE_SIZE)
 #ifndef PINS_DEFINED 
 const int rf_csn = 10;
 const int rf_ce = 9;
+const int red_led = 6;
 #endif
 
 extern uint16_t* __brkval;
@@ -324,6 +325,14 @@ void setup()
   uip.start_dhcp(dhcp_status_cb);
   uip.init_resolv(resolv_found_cb);
   app_state = state_needip;
+
+  //
+  // Setup the LED as a status
+  //
+
+  // Status LED will be 'LOW' only when we are state_ready
+  pinMode(red_led,OUTPUT);
+  digitalWrite(red_led,HIGH);
 }
 
 /**
@@ -350,7 +359,9 @@ void loop()
       // Make sure the Ethernet is ready, otherwise discard it
       if ( app_state == state_ready )
       {
-        // Convert the readings to a pachube CSV
+	digitalWrite(red_led,HIGH);
+        
+	// Convert the readings to a pachube CSV
         char reading_buffer[40];
         message.toCSV(reading_buffer,sizeof(reading_buffer),header.from_node);
 
@@ -391,6 +402,7 @@ void loop()
   }
   break;
   case state_ready:
+    digitalWrite(red_led,LOW);
   case state_sending:
   case state_none:
   case state_invalid:
