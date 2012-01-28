@@ -1,23 +1,25 @@
 OUTDIR = ..
 INFILES = $(wildcard *.html) $(wildcard *.shtml) $(wildcard *.txt) $(wildcard *.js)
-XXDFILES = $(addprefix $(OUTDIR)/, $(addsuffix .c, $(INFILES)))
-ALLFILES = $(XXDFILES) $(OUTDIR)/files.h $(OUTDIR)/dir.h
+XXDDIR = xxd
+XXDFILES = $(addprefix $(XXDDIR)/, $(addsuffix .cpp, $(INFILES)))
+OUTFILES = $(addprefix $(OUTDIR)/, $(addsuffix .cpp, $(subst .,_,$(INFILES))))
+ALLFILES = $(OUTDIR)/fs.cpp $(OUTDIR)/files.h $(OUTDIR)/dir.h
 
 all: $(ALLFILES)
 
 clean:
-	rm -f $(ALLFILES)
+	rm -f $(ALLFILES) $(XXDFILES)
 
-$(OUTDIR)/%.shtml.c : %.shtml
+$(XXDDIR)/%.shtml.cpp : %.shtml
 	xxd -i $< | gawk -f ../xxd.awk > $@
 
-$(OUTDIR)/%.html.c : %.html
+$(XXDDIR)/%.html.cpp : %.html
 	xxd -i $< | gawk -f ../xxd.awk > $@
 
-$(OUTDIR)/%.txt.c : %.txt
+$(XXDDIR)/%.txt.cpp : %.txt
 	xxd -i $< | gawk -f ../xxd.awk > $@
 
-$(OUTDIR)/%.js.c : %.js
+$(XXDDIR)/%.js.cpp : %.js
 	xxd -i $< | gawk -f ../xxd.awk > $@
 
 $(OUTDIR)/files.h : $(XXDFILES)
@@ -25,3 +27,6 @@ $(OUTDIR)/files.h : $(XXDFILES)
 
 $(OUTDIR)/dir.h : $(XXDFILES)
 	gawk -f ../dir.awk $(XXDFILES) > $@
+
+$(OUTDIR)/fs.cpp : $(XXDFILES)
+	cat $(XXDFILES) > $@
