@@ -1,5 +1,5 @@
 OUTDIR = ..
-INFILES = $(wildcard *.html) $(wildcard *.shtml) $(wildcard *.txt)
+INFILES = $(wildcard *.html) $(wildcard *.shtml) $(wildcard *.txt) $(wildcard *.js)
 XXDFILES = $(addprefix $(OUTDIR)/, $(addsuffix .c, $(INFILES)))
 ALLFILES = $(XXDFILES) $(OUTDIR)/files.h $(OUTDIR)/dir.h
 
@@ -15,6 +15,9 @@ $(OUTDIR)/%.html.c : %.html
 	xxd -i $< | gawk -f ../xxd.awk > $@
 
 $(OUTDIR)/%.txt.c : %.txt
+	xxd -i $< | gawk -f ../xxd.awk > $@
+
+$(OUTDIR)/%.js.c : %.js
 	xxd -i $< | gawk -f ../xxd.awk > $@
 
 $(OUTDIR)/files.h : $(XXDFILES)

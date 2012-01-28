@@ -28,3 +28,6 @@ extern const unsigned int set_pin_shtml_len ;
 extern const char ok_txt[] ;
 const char name_ok_txt[] PROGMEM = "/ok.txt";
 extern const unsigned int ok_txt_len ;
+extern const char index_js[] ;
+const char name_index_js[] PROGMEM = "/index.js";
+extern const unsigned int index_js_len ;

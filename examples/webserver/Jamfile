@@ -13,7 +13,7 @@ for _f in [ GLOB $(ORIGINAL_SOURCE_DIR) : $(ORIGINAL_FILES) ]
 }
 
 FS_SOURCE_DIR = $(ORIGINAL_SOURCE_DIR)/fs ;
-FS_FILES = *.shtml *.html *.txt Makefile ;
+FS_FILES = *.shtml *.html *.txt *.js Makefile ;
 FS_ALL_FILES = [ GLOB $(FS_SOURCE_DIR) : $(FS_FILES) Makefile ] ;
 for _f in $(FS_ALL_FILES)
 {

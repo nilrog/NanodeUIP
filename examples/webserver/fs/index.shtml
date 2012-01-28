@@ -1,4 +1,8 @@
 %!: /header.html
+<script src="/index.js" type="text/javascript"></script>
+<style type="text/css">div.ui-block-b { text-align:right; }</style>
+</head>
+<body>
   <div id="home" data-role="page">
     <div data-role="header">
       <h1>NanodeUIP</h1>

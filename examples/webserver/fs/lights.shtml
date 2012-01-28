@@ -1,27 +1,12 @@
 %!: /header.html
-<script type="text/javascript">
-
-$( '#lights' ).live( 'pageinit',function(event){
-  $( "select.light" ).change( function(e, ui) {
-    $.get("/set_pin.shtml?pin="+e.target.name+"&val="+$(e.target).val()); 
-    });
-});
-
-  </script>
-  <style type="text/css">
-div.ui-block-b {
-  text-align:right;
-  }
-  </style>
 </head>
 <body>
-
   <div id="lights" data-role="page">
     <div data-role="header">
       <h1 id="op">Lights</h1>
     </div>
-%! lights_list
     <div data-role="content">
+%! lights_list
     </div>
     <div data-role="footer" class="ui-bar">
       <a href="/" data-icon="home">Home</a>

@@ -1,18 +1,4 @@
 %!: /header.html
-<script type="text/javascript">
-$( '#sensors' ).live( 'pageinit',function(event){
-  $( "button#refresh" ).click( function(e,ui) {
-    $.get("/sensors_list.shtml",function(data) {
-      $("#sensors_list").html(data).listview('refresh');
-      });
-  });
-});
-  </script>
-  <style type="text/css">
-div.ui-block-b {
-  text-align:right;
-  }
-  </style>
 </head>
 <body>
   <div id="sensors" data-role="page">

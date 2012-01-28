@@ -9,5 +9,6 @@ const file_entry_t dir[] PROGMEM = {
 { name_sensors_shtml , sensors_shtml , & sensors_shtml_len },
 { name_set_pin_shtml , set_pin_shtml , & set_pin_shtml_len },
 { name_ok_txt , ok_txt , & ok_txt_len },
+{ name_index_js , index_js , & index_js_len },
 {0,0,0},
 };
