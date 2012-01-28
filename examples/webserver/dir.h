@@ -3,6 +3,7 @@ const file_entry_t dir[] PROGMEM = {
 { name_header_html , header_html , & header_html_len },
 { name_buttons_list_shtml , buttons_list_shtml , & buttons_list_shtml_len },
 { name_buttons_shtml , buttons_shtml , & buttons_shtml_len },
+{ name_credits_shtml , credits_shtml , & credits_shtml_len },
 { name_index_shtml , index_shtml , & index_shtml_len },
 { name_lights_shtml , lights_shtml , & lights_shtml_len },
 { name_sensors_list_shtml , sensors_list_shtml , & sensors_list_shtml_len },
