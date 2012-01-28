@@ -1,0 +1,14 @@
+%!: /header.html
+  <div id="home" data-role="page">
+    <div data-role="header">
+      <h1>NanodeUIP</h1>
+    </div>
+    <div data-role="content">
+      <ul data-role="listview" data-theme="g">
+        <li><a href="/buttons.shtml">Buttons</a></li>
+        <li><a href="/lights.shtml">Lights</a></li>
+        <li><a href="/sensors.shtml">Sensors</a></li>
+      </ul>
+    </div>
+  </div>
+%!: /footer.html

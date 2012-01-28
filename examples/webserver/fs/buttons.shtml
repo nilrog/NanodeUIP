@@ -1,0 +1,30 @@
+%!: /header.html
+<script type="text/javascript">
+$( '#buttons' ).live( 'pageinit',function(event){
+  $( "button#refresh" ).click( function(e,ui) {
+    $.get("/buttons_list.shtml",function(data) {
+      $("#buttons_list").html(data).listview('refresh');
+      });
+  });
+});
+</script>
+  <style type="text/css">
+div.ui-block-b {
+  text-align:right;
+  }
+  </style>
+</head>
+<body>
+  <div id="buttons" data-role="page">
+    <div data-role="header"><h1>Buttons</h1></div>
+    <div data-role="content"><ul data-role="listview" data-theme="g" id="buttons_list">
+%! buttons_list
+    </ul></div>
+    
+    <div data-role="footer" class="ui-bar">
+      <button type="button" data-icon="refresh" id="refresh">Refresh</button>
+      <a href="/" data-icon="home">Home</a>
+    </div>
+  
+  </div>
+%!: /footer.html

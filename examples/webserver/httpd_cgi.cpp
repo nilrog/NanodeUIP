@@ -40,6 +40,7 @@
 #include "httpd.h"
 #include "httpd_cgi.h"
 #include "httpd_fs.h"
+#include "pins_cgi.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -47,11 +48,39 @@
 #include <NanodeUIP.h>
 #include <Arduino.h>
 
-HTTPD_CGI_CALL(digital, "digital-pins", digital_pins);
-HTTPD_CGI_CALL(analog, "analog-pins", analog_pins);
 HTTPD_CGI_CALL(cgi_toggle_pin, "toggle_pin", toggle_pin);
+HTTPD_CGI_CALL(cgi_set_pin, "set_pin", set_pin);
+HTTPD_CGI_CALL(cgi_buttons_list, "buttons_list", buttons_list);
+HTTPD_CGI_CALL(cgi_sensors_list, "sensors_list", sensors_list);
+HTTPD_CGI_CALL(cgi_lights_list, "lights_list", lights_list);
 
-static const struct httpd_cgi_call *calls[] = { &digital, &analog, &cgi_toggle_pin, NULL };
+static const struct httpd_cgi_call *calls[] = { &cgi_toggle_pin, &cgi_set_pin, &cgi_buttons_list, &cgi_sensors_list, &cgi_lights_list, NULL };
+
+static const pin_def_t* buttons;
+static const pin_def_t* lights;
+static const pin_def_t* sensors;
+
+extern void cgi_register(const pin_def_t* _buttons,const pin_def_t* _lights,const pin_def_t* _sensors)
+{
+  buttons = _buttons;
+  lights = _lights;
+  sensors = _sensors;
+}
+
+// These methods assume THIS is a progmem pointer
+
+bool pin_def_t::is_valid_P(void) const
+{
+  return pgm_read_word(&name) != 0;
+}
+const char* pin_def_t::get_name_P(void) const
+{
+  return reinterpret_cast<const char*>(pgm_read_word(&name));
+}
+uint8_t pin_def_t::get_number_P(void) const
+{
+  return pgm_read_byte(&number);
+}
 
 /*---------------------------------------------------------------------------*/
 static
@@ -61,10 +90,12 @@ PT_THREAD(nullfunction(struct httpd_state *s, char *))
   PSOCK_END(&s->sout);
 }
 /*---------------------------------------------------------------------------*/
+extern void log_Pcr(const char* str);
+
 httpd_cgifunction
 httpd_cgi(char *name)
 {
-  printf_P(PSTR("CGI: %S\r\n"),name);
+  log_Pcr(name);
 
   const struct httpd_cgi_call **f;
 
@@ -78,109 +109,98 @@ httpd_cgi(char *name)
 }
 
 /*---------------------------------------------------------------------------*/
-int getPinMode(uint8_t pin)
-{
-	int result = -1;
-
-	uint8_t bit = digitalPinToBitMask(pin);
-	uint8_t port = digitalPinToPort(pin);
-
-	if (port != NOT_A_PIN)
-	{
-		volatile uint8_t *reg = portModeRegister(port);
-
-		if ( *reg & bit )
-			result = OUTPUT;
-		else
-			result = INPUT; 
-	}
-	return result;
-}
-
-/*---------------------------------------------------------------------------*/
 
 static const char str_high[] PROGMEM = "HIGH";
 static const char str_low[] PROGMEM = "LOW";
-static const char str_input[] PROGMEM = "INPUT";
-static const char str_output[] PROGMEM = "OUTPUT";
-static const char str_empty[] PROGMEM = "";
 static const char str_notfound[] PROGMEM = "Not found";
 
+/*---------------------------------------------------------------------------*/
 static unsigned short
-generate_digital_pins(void *arg)
+generate_buttons_list(void *arg)
 {
+  printf_P(PSTR("generate_buttons_list\r\n"));
+
   struct httpd_state *s = (struct httpd_state *)arg;
-   
-  char* buf = (char*)uip_appdata;
-  size_t len = UIP_APPDATA_SIZE;
-  size_t written;
 
-  written = snprintf_P(buf,len,
-		 PSTR("<tr><td>%u</td><td>%S</td><td id=\"p%u\">%S</td><td>"),
-		 s->count,
-		 getPinMode(s->count)?str_output:str_input,
-		 s->count,
-		 digitalRead(s->count)?str_high:str_low
+  return snprintf_P((char*)uip_appdata,UIP_APPDATA_SIZE,
+    PSTR("<li><div class='ui-grid-a'><div class='ui-block-a'>%S</div><div class='ui-block-b'>%S</div></div></li>\r\n"),
+    buttons[s->count].get_name_P(),
+    digitalRead(buttons[s->count].get_number_P())?str_high:str_low
   );
-  buf += written;
-  len -= written;
- 
-  if ( getPinMode(s->count) )
-  { 
-  written = snprintf_P(buf,len,
-		 PSTR("<button type=\"button\" onclick=\"toggle_pin(%u)\">Toggle</button>"),
-		 s->count
-  );
-  buf += written;
-  len -= written;
-  }
-
-  written = snprintf_P(buf,len,
-		 PSTR("</td></tr>\r\n")
-  );
-  buf += written;
-  len -= written;
-  
-  return UIP_APPDATA_SIZE - len;
 }
 static
-PT_THREAD(digital_pins(struct httpd_state *s, char *))
+PT_THREAD(buttons_list(struct httpd_state *s, char *))
 {
   
   PSOCK_BEGIN(&s->sout);
 
-  for(s->count = 0; s->count < NUM_DIGITAL_PINS; ++s->count) {
-    PSOCK_GENERATOR_SEND(&s->sout, generate_digital_pins, s);
+  for(s->count = 0; buttons[s->count].is_valid_P(); ++s->count) {
+    PSOCK_GENERATOR_SEND(&s->sout, generate_buttons_list, s);
   }
 
   PSOCK_END(&s->sout);
 }
 /*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-
 static unsigned short
-generate_analog_pins(void *arg)
+generate_sensors_list(void *arg)
 {
+  printf_P(PSTR("generate_sensors_list\r\n"));
+
   struct httpd_state *s = (struct httpd_state *)arg;
-    
-  return snprintf_P((char *)uip_appdata, UIP_APPDATA_SIZE,
-		 PSTR("<tr><td>%u</td><td>%u</td></tr>\r\n"),
-		 s->count,
-		 analogRead(s->count)
+
+  return snprintf_P((char*)uip_appdata,UIP_APPDATA_SIZE,
+    PSTR("<li><div class='ui-grid-a'><div class='ui-block-a'>%S</div><div class='ui-block-b'>%u</div></div></li>\r\n"),
+    sensors[s->count].get_name_P(),
+    analogRead(sensors[s->count].get_number_P())
   );
 }
 static
-PT_THREAD(analog_pins(struct httpd_state *s, char *))
+PT_THREAD(sensors_list(struct httpd_state *s, char *))
 {
   
   PSOCK_BEGIN(&s->sout);
 
-  for(s->count = 0; s->count < NUM_ANALOG_INPUTS; ++s->count) {
-    PSOCK_GENERATOR_SEND(&s->sout, generate_analog_pins, s);
+  for(s->count = 0; sensors[s->count].is_valid_P(); ++s->count) {
+    PSOCK_GENERATOR_SEND(&s->sout, generate_sensors_list, s);
   }
 
   PSOCK_END(&s->sout);
 }
+
+/*---------------------------------------------------------------------------*/
+static unsigned short
+generate_lights_list(void *arg)
+{
+  printf_P(PSTR("generate_lights_list\r\n"));
+
+  struct httpd_state *s = (struct httpd_state *)arg;
+
+  uint8_t pin = lights[s->count].get_number_P();
+  return snprintf_P((char*)uip_appdata,UIP_APPDATA_SIZE,
+    PSTR("<div data-role='fieldcontain'>"
+         "<label for='light-%u'>%S</label> <select class='light' name='%u' id='light-%u' data-role='slider'>"
+         "<option value='0'>LOW</option><option value='1'>HIGH</option>"
+         "</select>"
+         "</div>\r\n"),
+    pin,
+    lights[s->count].get_name_P(),
+    pin,
+    pin
+  );
+}
+static
+PT_THREAD(lights_list(struct httpd_state *s, char *))
+{
+  
+  PSOCK_BEGIN(&s->sout);
+
+  for(s->count = 0; lights[s->count].is_valid_P(); ++s->count) {
+    PSOCK_GENERATOR_SEND(&s->sout, generate_lights_list, s);
+  }
+
+  PSOCK_END(&s->sout);
+}
+
 /*---------------------------------------------------------------------------*/
 static
 PT_THREAD(toggle_pin(struct httpd_state *s, char *))
@@ -197,6 +217,34 @@ PT_THREAD(toggle_pin(struct httpd_state *s, char *))
   {
     uint8_t pin = atoi(pin_at+4);
     digitalWrite(pin,digitalRead(pin)^HIGH);
+    
+    response = digitalRead(pin)?str_high:str_low;
+  }
+  
+    // Send response
+  PSOCK_SEND_P(&s->sout,(uint8_t*)response,strlen_P(response));
+
+  PSOCK_END(&s->sout);
+}
+/*---------------------------------------------------------------------------*/
+static
+PT_THREAD(set_pin(struct httpd_state *s, char *))
+{
+  char* pin_at;
+  char* val_at;
+  const char* response = str_notfound;
+
+  PSOCK_BEGIN(&s->sout);
+  // Take action
+
+  nanode_log(s->filename);
+  pin_at = strstr(s->filename,"pin=");
+  val_at = strstr(s->filename,"val=");
+  if ( pin_at && val_at )
+  {
+    uint8_t pin = atoi(pin_at+4);
+    uint8_t val = atoi(val_at+4);
+    digitalWrite(pin,val);
     
     response = digitalRead(pin)?str_high:str_low;
   }

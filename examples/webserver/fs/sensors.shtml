@@ -1,0 +1,32 @@
+%!: /header.html
+<script type="text/javascript">
+$( '#sensors' ).live( 'pageinit',function(event){
+  $( "button#refresh" ).click( function(e,ui) {
+    $.get("/sensors_list.shtml",function(data) {
+      $("#sensors_list").html(data).listview('refresh');
+      });
+  });
+});
+  </script>
+  <style type="text/css">
+div.ui-block-b {
+  text-align:right;
+  }
+  </style>
+</head>
+<body>
+  <div id="sensors" data-role="page">
+    <div data-role="header"><h1>Sensors</h1></div>
+
+    <div data-role="content">
+      <ul data-role="listview" data-theme="g" id="sensors_list">
+%! sensors_list
+      </ul>
+    </div>
+
+    <div data-role="footer" class="ui-bar">
+      <button type="button" data-icon="refresh" id="refresh">Refresh</button>
+      <a href="/" data-icon="home">Home</a>
+    </div>
+  </div>
+%!: /footer.html
