@@ -2,6 +2,7 @@
 
 PROJECT_LIBS 	= SPI RF24 RF24Network NanodeUIP NanodeUNIO ; 
 PROJECT_DIRS	= $(PWD) ;
+PROJECT_FILES	= fs.cpp ; # Files that we will build
 
 # This sketch is copied over from another location on my machine
 ORIGINAL_SOURCE_DIR = $(HOME)/Source/Arduino/1284P/uip/webserver ;
@@ -30,7 +31,9 @@ actions Make
 	cd fs && make
 }
 
-Make files.h dir.h : $(FS_ALL_FILES) ; 
+Make files.h dir.h fs.cpp : $(FS_ALL_FILES) ; 
+Objects fs.cpp ;
+Depends $(PWD:B).elf [ FGristFiles fs.o ] ; 
 
 # (2) Board Information
 

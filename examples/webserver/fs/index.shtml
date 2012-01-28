@@ -14,5 +14,9 @@
         <li><a href="/sensors.shtml">Sensors</a></li>
       </ul>
     </div>
+    <div data-role="footer" class="ui-bar">
+      <a href="http://www.github.com/maniacbug/NanodeUIP" data-icon="info">Nanode</a>
+      <a href="http://maniacbug.wordpress.com" data-icon="info">maniacbug</a>
+    </div>
   </div>
 %!: /footer.html
