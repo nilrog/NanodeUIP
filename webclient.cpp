@@ -183,6 +183,7 @@ webclient_get(const char *host, u16_t port, const char *file)
     ipaddr = (uip_ipaddr_t *)resolv_lookup((char*)host);  // cast away const unsafe!
 #endif
     if(ipaddr == NULL) {
+      UIP_LOG("Resolv lookup failed");
       return 0;
     }
   }
@@ -190,9 +191,11 @@ webclient_get(const char *host, u16_t port, const char *file)
   conn = uip_connect(ipaddr, uip_htons(port),webclient_appcall);
   
   if(conn == NULL) {
+    UIP_LOG("Open connection failed");
     return 0;
   }
   
+  ps = reinterpret_cast<webclient_state*>(&(conn->appstate));
   ps->request_type = REQUEST_TYPE_GET; 
   ps->port = port;
   ps->body[0] = 0;
@@ -201,6 +204,7 @@ webclient_get(const char *host, u16_t port, const char *file)
   strncpy(ps->host, host, sizeof(ps->host));
   
   init_connection();
+  uip_log_P(PSTR("Connection started."));
   return 1;
 }
 /*-----------------------------------------------------------------------------------*/
