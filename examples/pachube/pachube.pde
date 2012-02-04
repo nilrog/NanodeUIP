@@ -30,18 +30,49 @@ UIPASSERT(sizeof(struct webclient_state)<=TCP_APP_STATE_SIZE)
 #undef PSTR
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
 
-enum app_states_e { state_none = 0, state_needip, state_needresolv, 
-  state_noconnection, state_connecting, state_waiting, state_done, state_invalid };
+/**************************************************************************/
+/**
+ * @defgroup app_logic Application Logic
+ *
+ * The main stuff the sketch does is handled here.
+ *
+ * @{
+ */
 
+/**
+ * All available application states handled by the loop()
+ */
+enum app_states_e
+{
+  state_none = 0, /**< No state has been set. Illegal */
+  state_needip, /**< We are blocked until we get an IP address */
+  state_needresolv, /**< We are blocked until we can resolve the host of our service */
+  state_noconnection, /**< Everything is ready, webclient needs to be started */
+  state_connecting, /**< Trying to connect to server */
+  state_waiting, /**< Ethernet transmission in progress */
+  state_done, /**< Application complete.  Stopped. */ 
+  state_invalid  /**< An invalid state.  Illegal */
+};
+
+/**
+ * The current state the application is in
+ */
 static app_states_e app_state;
 
+/**
+ * Flags related to the application state.  Generally, the application state
+ * will transition when one of these flags changes state.
+ */
 struct app_flags_t
 {
   uint8_t have_ip:1;
   uint8_t have_resolv:1;
 };
 
-static app_flags_t app_flags;
+/**
+ * The current state of the application flags
+ */
+static app_flags_t app_flags = state_needip;
 
 static const char pachube_api_key[] __attribute__ (( section (".progmem") )) = "X-PachubeApiKey: 8pvNK_06BCBDXtRwq96si4ikFtKZn4rtDjmFoejHOG2iTDQpdXnu3jjMoDSk_E5_CRVMtjql79Jbz-4CT9HMR1Bs3LpqsV_sHKzmjuAM00Y574bHA3zGlarGhrmj9cFS";
 

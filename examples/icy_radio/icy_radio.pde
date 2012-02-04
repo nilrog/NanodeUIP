@@ -13,6 +13,7 @@
  */
 
 //#define ETHERSHIELD // uncomment to run on EtherShield
+#include <VS1053.h>
 #include <NanodeUIP.h>
 #include <psock.h>
 #include "webclient.h"
@@ -28,6 +29,11 @@ UIPASSERT(sizeof(struct webclient_state)<=TCP_APP_STATE_SIZE)
 // warnings.
 #undef PSTR
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
+
+/**
+ * MP3 player instance
+ */
+VS1053 player(/* cs_pin */ 10,/* dcs_pin */ 7,/* dreq_pin */ 4,/* reset_pin */ 5);
 
 /**************************************************************************/
 /**
@@ -48,6 +54,7 @@ enum app_states_e
   state_needresolv, /**< We are blocked until we can resolve the host of our service */
   state_noconnection, /**< Everything is ready, webclient needs to be started */
   state_connecting, /**< Trying to connect to server */
+  state_streaming, /**< Actively streaming data from server */
   state_done, /**< Application complete.  Stopped. */ 
   state_invalid  /**< An invalid state.  Illegal */
 };
@@ -65,6 +72,7 @@ struct app_flags_t
 {
   uint8_t have_ip:1;
   uint8_t have_resolv:1;
+  uint8_t is_receiving:1;
 };
 
 /**
@@ -138,6 +146,12 @@ void setup()
   nanode_log_P(PSTR("Link is up"));
   uip.start_dhcp(dhcp_status_cb);
   uip.init_resolv(resolv_found_cb);
+
+  //
+  // Startup mp3 player
+  //
+
+  player.begin();
 }
 
 void loop() {
@@ -168,11 +182,14 @@ void loop() {
 	app_state = state_connecting;
       }
       break;
-    case state_done:
-      printf_P(PSTR("+OK\r\n"));
-      app_state = state_none;
-      break;
     case state_connecting:
+      if ( app_flags.is_receiving )
+      {
+	app_state = state_streaming;
+        printf_P(PSTR("+OK\r\n"));
+      }
+    case state_streaming:
+    case state_done:
     case state_none:
     case state_invalid:
       break;
@@ -204,8 +221,11 @@ void webclient_datahandler(char *data, u16_t len)
   //printf_P(PSTR("%lu: webclient_datahandler data=%p len=%u\r\n"),millis(),data,len);
   Serial.print('.');
 
-  if ( ! started_at )
+  if ( ! app_flags.is_receiving )
+  {
+    app_flags.is_receiving = 1;
     started_at = millis();
+  }
 
   size_received += len;
 #if 0
@@ -220,13 +240,17 @@ void webclient_datahandler(char *data, u16_t len)
   Serial.println();
 #endif
 
+  // Send data to the player.  The only data we get is music data so this is
+  // safe.
+  player.playChunk(reinterpret_cast<uint8_t*>(data),len);
+
   // If data is NULL, we are done.  Print the stats
   if (!data)
   {
     Serial.println();
     printf_P(PSTR("%lu: DONE. Received %lu bytes in %lu msec.\r\n"),millis(),size_received,millis()-started_at);
     app_state = state_done;
-    started_at = 0;
+    app_flags.is_receiving = 0;
   }
 }
 
