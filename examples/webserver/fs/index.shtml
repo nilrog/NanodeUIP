@@ -16,6 +16,7 @@
     </div>
     <div data-role="footer" class="ui-bar">
       <a href="/credits.shtml" data-icon="info">Credits</a>
+      <a href="http://maniacbug.wordpress.com/2012/01/28/webserver/" data-icon="star">Help</a>
     </div>
   </div>
 %!: /footer.html

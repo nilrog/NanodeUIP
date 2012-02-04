@@ -10,23 +10,14 @@ all: $(ALLFILES)
 clean:
 	rm -f $(ALLFILES) $(XXDFILES)
 
-$(XXDDIR)/%.shtml.cpp : %.shtml
-	xxd -i $< | gawk -f ../xxd.awk > $@
-
-$(XXDDIR)/%.html.cpp : %.html
-	xxd -i $< | gawk -f ../xxd.awk > $@
-
-$(XXDDIR)/%.txt.cpp : %.txt
-	xxd -i $< | gawk -f ../xxd.awk > $@
-
-$(XXDDIR)/%.js.cpp : %.js
+$(XXDDIR)/%.cpp : %
 	xxd -i $< | gawk -f ../xxd.awk > $@
 
 $(OUTDIR)/files.h : $(XXDFILES)
-	gawk -f ../files.awk $(XXDFILES) > $@
+	gawk -f ../files.awk $^ > $@
 
 $(OUTDIR)/dir.h : $(XXDFILES)
-	gawk -f ../dir.awk $(XXDFILES) > $@
+	gawk -f ../dir.awk $^ > $@
 
 $(OUTDIR)/fs.cpp : $(XXDFILES)
 	cat $(XXDFILES) > $@
