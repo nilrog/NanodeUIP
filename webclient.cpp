@@ -68,7 +68,7 @@ extern "C"
 #include "webclient.h"
 #include "webclient-strings.h"
 
-#define WEBCLIENT_TIMEOUT 100
+#define WEBCLIENT_TIMEOUT 20
 
 #define WEBCLIENT_STATE_STATUSLINE 0
 #define WEBCLIENT_STATE_HEADERS    1
