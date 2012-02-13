@@ -31,6 +31,7 @@ extern const char http_index_shtml[13];
 extern const char http_jpg[5];
 extern const char http_location[11];
 extern const char http_png[5];
+extern const char http_post[6];
 extern const char http_put[5];
 extern const char http_referer[9];
 extern const char http_shtml[7];

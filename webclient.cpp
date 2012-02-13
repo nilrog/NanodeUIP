@@ -82,6 +82,7 @@ extern "C"
 
 #define REQUEST_TYPE_GET	0
 #define REQUEST_TYPE_PUT	1
+#define REQUEST_TYPE_POST	2
 
 #define ISO_nl       0x0a
 #define ISO_cr       0x0d
@@ -148,13 +149,16 @@ init_connection(void)
     strlen_P(http_user_agent_fields) +
     strlen(ps->file) + strlen(ps->host);
 
-  if ( ps->body[0] )
+  if ( ps->request_type == REQUEST_TYPE_POST || ps->request_type == REQUEST_TYPE_PUT ) 
     ps->getrequestleft += sizeof(http_content_length) - 1 + 3 +
       sizeof(http_crnl) - 1 +
       sizeof(ps->body);
 
-  if ( pgm_read_byte(ps->extra_headers) )
+  if ( ps->progmem && pgm_read_byte(ps->extra_headers) )
     ps->getrequestleft += strlen_P(ps->extra_headers) +
+    sizeof(http_crnl) - 1;
+  else if ( ! ps->progmem && ps->extra_headers[0] )
+    ps->getrequestleft += strlen(ps->extra_headers) +
     sizeof(http_crnl) - 1;
 
   ps->getrequestptr = 0;
@@ -200,6 +204,7 @@ webclient_get(const char *host, u16_t port, const char *file)
   ps->port = port;
   ps->body[0] = 0;
   ps->extra_headers = PSTR("");
+  ps->progmem = 1;
   strncpy(ps->file, file, sizeof(ps->file));
   strncpy(ps->host, host, sizeof(ps->host));
   
@@ -259,6 +264,7 @@ webclient_put_P(const char * host, u16_t port, const char * file, const char* ex
   strncpy_P(ps->file, file, sizeof(ps->file));
   
   ps->extra_headers = extra_headers;
+  ps->progmem = 1;
   strncpy(ps->body, body, sizeof(ps->body));
   ps->body[sizeof(ps->body)-1] = 0;
 
@@ -270,9 +276,48 @@ webclient_put_P(const char * host, u16_t port, const char * file, const char* ex
   return 1;
 }
 /*-----------------------------------------------------------------------------------*/
+unsigned char
+webclient_post(const char * host, u16_t port, const char * file, const char* extra_headers, const char* body )
+{
+  static uip_ipaddr_t addr;
+  
+  /* First check if the host is an IP address */
+  uip_ipaddr_t *ipaddr = &addr;
+  if(uiplib_ipaddrconv(const_cast<char*>(host), (unsigned char *)addr) == 0) {
+    ipaddr = 0;
+#ifdef DNS
+    ipaddr = (uip_ipaddr_t *)resolv_lookup(host);  // cast away const unsafe!
+#endif
+    if(ipaddr == NULL) {
+      return 0;
+    }
+  }
+  
+  struct uip_conn *conn = uip_connect(ipaddr, uip_htons(port),webclient_appcall);
+  if(conn == NULL) {
+    return 0;
+  }
+
+  ps = reinterpret_cast<webclient_state*>(&(conn->appstate));
+  strncpy(ps->host, host, sizeof(ps->host));
+  strncpy(ps->file, file, sizeof(ps->file));
+  
+  ps->extra_headers = extra_headers;
+  ps->progmem = 0;
+  strncpy(ps->body, body, sizeof(ps->body));
+  ps->body[sizeof(ps->body)-1] = 0;
+
+  ps->request_type = REQUEST_TYPE_POST; 
+  ps->port = port;
+  
+  init_connection();
+  uip_log_P(PSTR("Connection started."));
+  return 1;
+}
+/*-----------------------------------------------------------------------------------*/
 static char *
 copy_string(char *dest,
-	    const char *src, unsigned char len)
+	    const char *src, u16_t len)
 {
   strncpy(dest, src, len);
   return dest + len;
@@ -280,7 +325,7 @@ copy_string(char *dest,
 /*-----------------------------------------------------------------------------------*/
 static char *
 copy_string_P(char *dest,
-	    const char *src, unsigned char len)
+	    const char *src, u16_t len)
 {
   strncpy_P(dest, src, len);
   return dest + len;
@@ -300,6 +345,8 @@ senddata(void)
       cptr = copy_string_P(cptr, http_get, sizeof(http_get) - 1);
     else if ( ps->request_type == REQUEST_TYPE_PUT )
       cptr = copy_string_P(cptr, http_put, sizeof(http_put) - 1);
+    else if ( ps->request_type == REQUEST_TYPE_POST )
+      cptr = copy_string_P(cptr, http_post, sizeof(http_post) - 1);
     
     cptr = copy_string(cptr, ps->file, strlen(ps->file));
     *cptr++ = ISO_space;
@@ -311,7 +358,7 @@ senddata(void)
     cptr = copy_string(cptr, ps->host, strlen(ps->host));
     cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
 
-    if ( ps->body[0] ) {
+    if ( ps->request_type == REQUEST_TYPE_POST || ps->request_type == REQUEST_TYPE_PUT ) {
       cptr = copy_string_P(cptr, http_content_length, sizeof(http_content_length) - 1);
       char buf[4];
       snprintf(buf,sizeof(buf),"%03u",strlen(ps->body));
@@ -319,8 +366,12 @@ senddata(void)
       cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
     } 
 
-    if ( pgm_read_byte(ps->extra_headers) ) {
+    if ( ps->progmem && pgm_read_byte(ps->extra_headers) ) {
       cptr = copy_string_P(cptr, ps->extra_headers, strlen_P(ps->extra_headers));
+      cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
+    }
+    else if ( ! ps->progmem && ps->extra_headers[0] ) {
+      cptr = copy_string(cptr, ps->extra_headers, strlen(ps->extra_headers));
       cptr = copy_string_P(cptr, http_crnl, sizeof(http_crnl) - 1);
     }
 

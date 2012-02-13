@@ -57,6 +57,7 @@ struct webclient_state {
   u8_t state:2;
   u8_t httpflag:2;
   u8_t request_type:2;
+  u8_t progmem:1;   // whether the extra headers are in progmem
 
   u16_t port;
   char host[32];
@@ -172,6 +173,7 @@ void webclient_init(void);
 unsigned char webclient_get(const char *host, u16_t port, const char *file);
 unsigned char webclient_get_P(const char *host, u16_t port, const char *file);
 unsigned char webclient_put_P(const char *host, u16_t port, const char *file, const char* extra_headers, const char* body );
+unsigned char webclient_post(const char *host, u16_t port, const char *file, const char* extra_headers, const char* body );
 
 /**
  * Close the currently open HTTP connection.

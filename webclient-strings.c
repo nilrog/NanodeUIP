@@ -95,6 +95,9 @@ const char http_location[11] PROGMEM =
 const char http_png[5] PROGMEM = 
 /* ".png" */
 {0x2e, 0x70, 0x6e, 0x67, 0 };
+const char http_post[6] PROGMEM = 
+/* "POST " */
+{0x50, 0x4f, 0x53, 0x54, 0x20, 0 };
 const char http_put[5] PROGMEM = 
 /* "PUT " */
 {0x50, 0x55, 0x54, 0x20, 0 };
