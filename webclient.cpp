@@ -545,8 +545,7 @@ parse_headers(u16_t len)
 		sizeof(http_content_type) - 1, sizeof(ps->mimetype));
       } else if(casecmp_P(ps->httpheaderline, http_location,
 			    sizeof(http_location) - 1) == 0) {
-	cptr = ps->httpheaderline +
-	  sizeof(http_location) - 1;
+	cptr = ps->httpheaderline + sizeof(http_location) - 1;
 	
 	if(strncmp_P(cptr, http_http, 7) == 0) {
 	  cptr += 7;
@@ -577,9 +576,9 @@ parse_headers(u16_t len)
 
   /* Handle header line overflow */
   if ( ps->httpheaderlineptr == sizeof(ps->httpheaderline) ) {
-    ps->httpheaderline[ps->httpheaderlineptr - i] = 0;
+    ps->httpheaderline[ps->httpheaderlineptr - 1] = 0;
     uip_log(ps->httpheaderline);
-      ps->httpheaderlineptr = 0;
+    ps->httpheaderlineptr = 0;
   }
 
   return len;
@@ -603,7 +602,7 @@ newdata(void)
 
   if(len > 0 && ps->state == WEBCLIENT_STATE_DATA &&
      ps->httpflag != HTTPFLAG_MOVED) {
-    webclient_datahandler((char *)uip_appdata, len);
+    webclient_datahandler(uip_appdata_ptr, len);
   }
 }
 /*-----------------------------------------------------------------------------------*/
