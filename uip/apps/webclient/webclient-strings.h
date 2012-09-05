@@ -28,4 +28,5 @@ extern const char http_gif[5];
 extern const char http_jpg[5];
 extern const char http_text[6];
 extern const char http_txt[5];
+extern const char http_manifest[4];
 extern const char http_user_agent_fields[77];
