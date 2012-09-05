@@ -15,7 +15,7 @@ extern const char http_content_type_jpg [29];
 extern const char http_content_type_plain[29];
 extern const char http_content_type_png [28];
 extern const char http_content_type_text[28];
-extern const char http_content_type_manifest[39];
+extern const char http_content_type_manifest[38];
 extern const char http_crnl[3];
 extern const char http_css[5];
 extern const char http_get[5];

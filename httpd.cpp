@@ -226,6 +226,8 @@ PT_THREAD(send_headers(struct httpd_state *s, const char *statushdr))
     PSOCK_SEND_P(&s->sout, (uint8_t*)http_content_type_gif,sizeof(http_content_type_gif)-1);
   } else if(strncmp_P(ptr, http_jpg, sizeof(http_jpg)-1) == 0) {
     PSOCK_SEND_P(&s->sout, (uint8_t*)http_content_type_jpg,sizeof(http_content_type_jpg)-1);
+  } else if(strncmp_P(ptr, http_manifest, sizeof(http_manifest)-1) == 0) {
+    PSOCK_SEND_P(&s->sout, (uint8_t*)http_content_type_manifest,sizeof(http_content_type_manifest)-1);
   } else {
     PSOCK_SEND_P(&s->sout, (uint8_t*)http_content_type_plain,sizeof(http_content_type_plain)-1);
   }
