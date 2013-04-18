@@ -15,8 +15,15 @@
 const uint8_t NANODE_NET_CS = 8;
 
 extern void resolv_conf(const uint16_t *dnsserver);
-extern void nanode_log(char *msg);
-extern void nanode_log_P(PGM_P msg);
+
+// map nanode_log* to uip_log* to save some space, and honor the UIP_LOGGING flag
+#if UIP_LOGGING == 1
+  #define nanode_log(m) uip_log(m)
+  #define nanode_log_P(m) uip_log_P(m)
+#else
+  #define nanode_log(m)
+  #define nanode_log_P(m)
+#endif /* UIP_LOGGING == 1 */
 
 #define DHCP_STATUS_OK 1
 #define DHCP_STATUS_DOWN 0
