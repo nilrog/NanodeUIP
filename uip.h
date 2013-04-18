@@ -1597,6 +1597,16 @@ u16_t uip_tcpchksum(void);
  */
 u16_t uip_udpchksum(void);
 
+#if UIP_LOGGING == 1
+  #include <avr/pgmspace.h>
+  #include <stdio.h>
+  #undef PSTR
+  #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
+  #define UIP_LOG(m) printf_P(PSTR(m))
+  #define uip_log(m) printf(m)
+#else
+  #define UIP_LOG(m)
+#endif /* UIP_LOGGING == 1 */
 
 #endif /* __UIP_H__ */
 
