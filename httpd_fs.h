@@ -37,6 +37,12 @@
 
 #define HTTPD_FS_STATISTICS 1
 
+#include "file_entry.h"
+
+// The "dir" variable is the startingpoint to all the files the webserver knows about.
+// This variable should be declared in the project.
+extern const file_entry_t dir[];
+
 struct httpd_fs_file {
   char *data;
   int len;
