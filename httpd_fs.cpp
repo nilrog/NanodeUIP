@@ -10,7 +10,7 @@
 #include "uip.h"
 #include "httpd_fs.h"
 
-int strncmp_PP(const char *ch1, const char *ch2, size_t len)
+uint16_t strncmp_PP(const char *ch1, const char *ch2, size_t len)
 {
   char c1=0,c2=0;
   while (len--)
@@ -31,7 +31,7 @@ struct entry
 {
   char* filename;
   char* data;
-  unsigned int* len;
+  uint16_t* len;
   entry(const void* data)
   {
     memcpy_P(this,data,sizeof(file_entry_t));
@@ -59,12 +59,12 @@ struct entry
 };
 
 // Note that 'filename' might not be zero-terminated!
-int httpd_fs_open(const char *filename, struct httpd_fs_file *file)
+uint16_t httpd_fs_open(const char *filename, struct httpd_fs_file *file)
 {
   nanode_log_P(PSTR("http: file open"));
   nanode_log((char*)filename);
   
-  int result = 0;
+  uint16_t result = 0;
   const file_entry_t* cur = dir;
   bool done = false;
   while (!done)
@@ -95,12 +95,12 @@ void log_Pcr(const char* str)
   Serial.println();
 }
 
-int httpd_fs_open_P(const char *filename, struct httpd_fs_file *file)
+uint16_t httpd_fs_open_P(const char *filename, struct httpd_fs_file *file)
 {
   nanode_log_P(PSTR("http: file open _P"));
   log_Pcr(filename);
   
-  int result = 0;
+  uint16_t result = 0;
   const file_entry_t* cur = dir;
   bool done = false;
   while (!done)

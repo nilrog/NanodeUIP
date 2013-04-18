@@ -46,9 +46,9 @@ struct httpd_state {
   char filename[30];
   char state;
   struct httpd_fs_file file;
-  int len;
+  uint16_t len;
   char *scriptptr;
-  int scriptlen;
+  uint16_t scriptlen;
   
   unsigned short count;
 };
@@ -57,6 +57,6 @@ void httpd_init(void);
 void httpd_appcall(void);
 
 void httpd_log(char *msg);
-void httpd_log_file(u16_t *requester, char *file);
+void httpd_log_file(uint16_t *requester, char *file);
 
 #endif /* __HTTPD_H__ */

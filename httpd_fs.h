@@ -45,17 +45,17 @@ extern const file_entry_t dir[];
 
 struct httpd_fs_file {
   char *data;
-  int len;
+  uint16_t len;
 };
 
 /* file must be allocated by caller and will be filled in
    by the function. */
-int httpd_fs_open(const char *name, struct httpd_fs_file *file);
-int httpd_fs_open_P(const char *name, struct httpd_fs_file *file);
+uint16_t httpd_fs_open(const char *name, struct httpd_fs_file *file);
+uint16_t httpd_fs_open_P(const char *name, struct httpd_fs_file *file);
 
 #ifdef HTTPD_FS_STATISTICS
 #if HTTPD_FS_STATISTICS == 1
-u16_t httpd_fs_count(char *name);
+uint16_t httpd_fs_count(char *name);
 #endif /* HTTPD_FS_STATISTICS */
 #endif /* HTTPD_FS_STATISTICS */
 
