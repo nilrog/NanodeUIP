@@ -24,6 +24,7 @@
 #include "httpd.h"
 #include "printf.h"
 #include "pins_cgi.h"
+#include "dir.h"
 
 #ifndef ETHERSHIELD
 #include <NanodeUNIO.h>

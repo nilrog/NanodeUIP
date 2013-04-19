@@ -1,4 +1,6 @@
 BEGIN {
+    print "#include \"files.h\""
+    print ""
 	print "const file_entry_t dir[] PROGMEM = {"
 }
 
