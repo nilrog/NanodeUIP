@@ -1602,9 +1602,9 @@ u16_t uip_udpchksum(void);
   #include <stdio.h>
   #undef PSTR
   #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
-  #define UIP_LOG(...) printf_P(PSTR(__VA_ARGS__))
-  #define uip_log(...) printf(__VA_ARGS__)
-  #define uip_log_P(...) printf_P(PSTR(__VA_ARGS__))
+  #define UIP_LOG(fmt, ...) printf_P(fmt, ##__VA_ARGS__)
+  #define uip_log(fmt, ...) printf(fmt, ##__VA_ARGS__)
+  #define uip_log_P(fmt, ...) printf_P(fmt, ##__VA_ARGS__)
 #else
   #define UIP_LOG(...)
   #define uip_log(...)

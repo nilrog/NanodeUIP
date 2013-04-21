@@ -18,8 +18,8 @@ extern void resolv_conf(const uint16_t *dnsserver);
 
 // map nanode_log* to printf* to save some space, and honor the UIP_LOGGING flag
 #if UIP_LOGGING == 1
-  #define nanode_log(...) printf(__VA_ARGS__)
-  #define nanode_log_P(...) printf_P(PSTR(__VA_ARGS__))
+  #define nanode_log(fmt, ...) printf(fmt, ##__VA_ARGS__)
+  #define nanode_log_P(fmt, ...) printf_P(fmt, ##__VA_ARGS__)
 #else
   #define nanode_log(...)
   #define nanode_log_P(...)
