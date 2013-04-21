@@ -49,7 +49,7 @@ struct entry
     file->data = data;
     file->len = pgm_read_word(len);
 
-    nanode_log_P(PSTR("http: entry result"))
+    nanode_log_P(PSTR("http: entry result"));
     nanode_log((char *)data);
   }
   bool isvalid(void) const
