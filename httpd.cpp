@@ -74,16 +74,8 @@
 #define ISO_slash   0x2f
 #define ISO_colon   0x3a
 
-#if UIP_LOGGING == 1
-#include <avr/pgmspace.h>
-#include <stdio.h>
-void uip_log_P(PGM_P msg);
 #undef PSTR
 #define PSTR(s) (__extension__({static const char __c[] __attribute__ (( section (".progmem") )) = (s); &__c[0];}))
-#define UIP_LOG(m) uip_log_P(PSTR(m))
-#else
-#define UIP_LOG(m)
-#endif /* UIP_LOGGING == 1 */
 
 /*---------------------------------------------------------------------------*/
 static unsigned short
